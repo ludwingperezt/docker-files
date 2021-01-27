@@ -1,0 +1,65 @@
+#version: "3"
+#
+#services:
+#  app:
+#    image: platziapp
+#    environment:
+#      MONGO_URL: "mongodb://db:27017/test"
+#    depends_on:
+#      - db
+#    ports:
+#      - "3000:3000"
+#
+#  db:
+#    image: mongo
+
+# version: "3"
+#
+# services:
+#   app:
+#     # construir una imagen a partir de un path para un contexto
+#     build: .
+#     environment:
+#       MONGO_URL: "mongodb://db:27017/test"
+#     depends_on:
+#       - db
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - .:/usr/src
+#       #La siguiente instruccion es para indicar que el path indicado no se debe sobreescribir
+#       - /usr/src/node_modules
+#
+#   db:
+#     image: mongo
+
+version: "3"
+
+services:
+  app:
+    # construir una imagen a partir de un path para un contexto
+    build: .
+    environment:
+      MONGO_URL: "mongodb://db:27017/test"
+    depends_on:
+      - db
+    #ports:
+    #  # Expone un rango de puertos en la máquina local
+    #  # para cada instancia del servicio (para el comando scale)
+    #  - "3000-3010:3000"
+    volumes:
+      - .:/usr/src
+      #La siguiente instruccion es para indicar que el path indicado no se debe sobreescribir
+      - /usr/src/node_modules
+
+  db:
+    image: mongo
+
+  lb:
+    image: dockercloud/haproxy
+    links:
+      - app
+    ports:
+      - "3000:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

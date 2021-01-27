@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  wp_db:
+    image: mysql:5.7
+    volumes:
+      - wp_db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+  wp:
+    depends_on:
+      - wp_db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./wordpress:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: wp_db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+  phpmyadmin:
+    depends_on:
+      - wp_db
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: wp_db
+volumes:
+    wp_db_data: {}

@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  redis:
+    image: redis:4.0.14
+    ports:
+      - "6379:6379"
+
+  rabbit:
+    image: rabbitmq:3.8.3
+    ports:
+      - "5672:5672"
+
+  db:
+    image: postgres:11
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./db_backups
+        target: /root
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  postgres_data:
