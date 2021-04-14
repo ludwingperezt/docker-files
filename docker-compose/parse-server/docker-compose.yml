@@ -1,0 +1,56 @@
+version: "3.3"
+
+services:
+  mongo:
+    image: mongo:4
+    volumes:
+      - type: volume
+        source: mongo_data
+        target: /data/db
+    networks:
+      - backend
+    ports:
+      - "27017-27019:27017-27019"
+    environment:
+      - MONGO_INITDB_DATABASE=test
+  parse:
+    image: parseplatform/parse-server:latest
+    volumes:
+      - type: volume
+        source: config-vol
+        target: /parse-server/config
+    ports:
+      - "1337:1337"
+    depends_on:
+      - mongo
+    networks:
+      - backend
+    environment:
+      - PARSE_SERVER_APPLICATION_ID=${APP_ID}
+      - PARSE_SERVER_MASTER_KEY=${MASTER_KEY}
+      - PARSE_SERVER_DATABASE_URI=${DATABASE_URI}
+      - PARSE_SERVER_ALLOW_ORIGIN=*
+  parse-dashboard:
+    image: parseplatform/parse-dashboard
+    command: ["--dev"]
+    ports:
+      - "4040:4040"
+    volumes:
+      - ./parse-dashboard-config.json:/src/Parse-Dashboard/parse-dashboard-config.json
+    networks:
+      - backend
+  mongo-express:
+    image: mongo-express:0.54
+    ports:
+      - 8081:8081
+    networks:
+      - backend
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+
+networks:
+  backend:
+
+volumes:
+  mongo_data:
+  config-vol:
